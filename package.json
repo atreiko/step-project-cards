@@ -1,9 +1,9 @@
 {
-	"name": "optimizedhtml",
+	"name": "step-project-cards",
 	"version": "5.0.0",
-	"description": "OptimizedHTML 5 - Lightweight Gulp Starter",
+	"description": "",
 	"main": "index.js",
-	"author": "WebDesign Master",
+	"author": "Artem Treiko",
 	"license": "ISC",
 	"devDependencies": {
 		"@babel/core": "^7.12.9",
