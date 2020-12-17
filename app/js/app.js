@@ -1,7 +1,7 @@
 // import $ from 'jquery'; window.jQuery = $; window.$ = $ // import module example (npm i -D jquery)
 import CardsService from "./services/cards.service";
 
-const modal = $.modal()
+
 
 // -===========================
 
@@ -15,26 +15,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const root = document.getElementById("root");
 
 
-  const writeMarkup = (cards) => {
-    const ul = document.createElement("ul");
-    for (const card of cards) {
-      ul.innerHTML += `<li>${card.content.name}</li>`;
-    }
-    root.appendChild(ul);
-  };
+  // const writeMarkup = (cards) => {
+  //   const ul = document.createElement("ul");
+  //   for (const card of cards) {
+  //     ul.innerHTML += `<li>${card.content.name}</li>`;
+  //   }
+  //   root.append(ul);
+  // };
 
-  const getAllCards = async () => {
-    const data = await cardsService.fetchCards();
-    writeMarkup(data);
-  };
+  // const getAllCards = async () => {
+  //   const data = await cardsService.fetchCards();
+  //   writeMarkup(data);
+  // };
 
-  getAllCards();
+  // getAllCards();
 });
 
 loginBtn.addEventListener("click", () => {
-  loginBtn.style = "display:none";
-  createNewMeet.style = "display:block";
-  loginBtn.preventDefault()
+  // loginBtn.style = "display:none";
+  // createNewMeet.style = "display:block";
+  // loginBtn.preventDefault()
 });
 
 
