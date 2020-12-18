@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Custom JS
   const root = document.getElementById("root");
 
-
   // const writeMarkup = (cards) => {
   //   const ul = document.createElement("ul");
   //   for (const card of cards) {

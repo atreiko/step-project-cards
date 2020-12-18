@@ -1,8 +1,7 @@
 
-// PLUGIN:
-// const modal = $.modal()
 let button  = document.getElementById('loginBtn')
-button.addEventListener('click', function(){
+button.addEventListener('click', function() {
+    
     let modal = document.createElement('div')
     modal.insertAdjacentHTML('afterbegin', `
     <div class="modal-overlay">
@@ -30,34 +29,4 @@ button.addEventListener('click', function(){
     let section = document.getElementById('section')
     section.append(modal)
 })
-// function _createModal(options) {
-//     const modal = document.createElement('div')
-//     modal.classList.add('reg-modal')
-    
 
-//     document.body.appendChild(modal)
-//     return modal
-// }
-
-// console.log($.modal)
-// $.modal = function(options) {
-//     const ANIMATION_SPEED = 200
-//     const $modal = _createModal(options)
-//     let closing = false
-    
-//     return {
-//         open() {
-//             !closing && $modal.classList.add('open')
-//         },
-//         close() {
-//             closing = true
-//             $modal.classList.remove('open')
-//             $modal.classList.add('hide')
-//             setTimeout(() => {
-//                 $modal.classList.remove('hide')
-//                 closing = false
-//             }, ANIMATION_SPEED)
-//         },
-//         desroy() {}
-//     }
-// }
