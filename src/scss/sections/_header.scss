@@ -1,0 +1,23 @@
+.header {
+    background-color: #333;
+    padding: 1.5rem 0;
+
+    &-wrapper {
+        display: flex;
+        justify-content: space-between;
+        width: 1370px;
+        margin: 0 auto;
+    }
+
+    &-logo {
+        width: 60px;
+        height: 60px;
+    }
+
+    &-button {
+        padding: .5rem .5rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        letter-spacing: .1rem;
+    }
+}
