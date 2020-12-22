@@ -1,0 +1,22 @@
+.filter {
+    display: flex;
+    justify-content: space-between;
+    padding: 3rem;
+    border: 1px solid tomato;
+
+    &-status label,
+    &-time label {
+        color: tomato;
+        
+    }
+
+   &-btn,
+   &-btn__clr {
+       background-color: #333;
+       color: tomato;
+       font-weight: bold;
+       padding: .2rem;
+       border-radius: 5px;
+       outline: none;
+   }
+}

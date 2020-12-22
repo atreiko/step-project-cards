@@ -1,122 +1,182 @@
-let fileswatch = 'html,htm,txt,json,md,woff2' // List of files extensions for watching & hard reload
 
-const {src, dest, parallel, series, watch} = require('gulp')
-const browserSync = require('browser-sync').create()
-const bssi = require('browsersync-ssi')
-const ssi = require('ssi')
-const webpack = require('webpack-stream')
-const sass = require('gulp-sass')
-const autoprefixer = require('gulp-autoprefixer')
-const rename = require('gulp-rename')
-const imagemin = require('gulp-imagemin')
-const newer = require('gulp-newer')
-const rsync = require('gulp-rsync')
-const del = require('del')
+let project_folder = "dist"; //require('path').basename(__dirname)
+let source_folder = "src";
+let fs = require("fs");
 
-function browsersync() {
-    browserSync.init({
-        server: {
-            baseDir: 'app/',
-            middleware: bssi({baseDir: 'app/', ext: '.html'})
-        },
-        tunnel: 'yousutename', // Attempt to use the URL https://yousutename.loca.lt
-        notify: false,
-        online: true
+let path = {
+  build: {
+    html: project_folder + "/",
+    css: project_folder + "/css",
+    js: project_folder + "/js",
+    img: project_folder + "/img",
+    fonts: project_folder + "/fonts",
+  },
+  src: {
+    html: [source_folder + "/*.html", "!" + source_folder + "/_*.html"],
+    css: source_folder + "/scss/style.scss",
+    js: source_folder + "/js/**/*.js",
+    img: source_folder + "/img/**/*.{jpg,png,svg,gif,ico,webp}",
+    fonts: source_folder + "/fonts/**/*.ttf",
+  },
+  watch: {
+    html: source_folder + "/**/*.html",
+    css: source_folder + "/scss/**/*.scss",
+    js: source_folder + "/js/**/*.js",
+    img: source_folder + "/img/**/*.{jpg,png,svg,gif,ico,webp}",
+  },
+  clean: "./" + project_folder + "/",
+};
+
+let { src, dest } = require("gulp"),
+  gulp = require("gulp"),
+  browsersync = require("browser-sync").create(),
+  fileinclude = require("gulp-file-include"),
+  sourcemaps = require("gulp-sourcemaps"),
+  del = require("del"),
+  scss = require("gulp-sass"),
+  group_media = require("gulp-group-css-media-queries"),
+  clean_css = require("gulp-clean-css"),
+  rename = require("gulp-rename"),
+  uglify = require("gulp-uglify-es").default,
+  imagemin = require("gulp-imagemin"),
+  ttf2woff = require("gulp-ttf2woff"),
+  ttf2woff2 = require("gulp-ttf2woff2"),
+  autoprefixer = require("gulp-autoprefixer");
+
+function browserSync(params) {
+  browsersync.init({
+    server: {
+      baseDir: "./" + project_folder + "/",
+    },
+    port: 3000,
+    notify: false,
+  });
+}
+
+function html() {
+  return src(path.src.html)
+    .pipe(sourcemaps.init())
+    .pipe(fileinclude())
+    .pipe(dest(path.build.html))
+    .pipe(sourcemaps.write())
+    .pipe(browsersync.stream());
+}
+function css() {
+  return src(path.src.css)
+    .on("error", function (err) {
+      console.log(err.toString());
+      this.emit("end");
     })
+    .pipe(sourcemaps.init())
+    .pipe(
+      scss({
+        outputStyle: "expanded",
+      })
+    )
+    .pipe(
+      autoprefixer({
+        grid: true,
+        overrideBrowserslist: ["last 5 versions"],
+        cascade: true,
+      })
+    )
+    .pipe(group_media())
+    .pipe(sourcemaps.write())
+    .pipe(dest(path.build.css))
+    .pipe(clean_css())
+    .pipe(
+      rename({
+        extname: ".min.css",
+      })
+    )
+    .pipe(dest(path.build.css))
+    .pipe(browsersync.stream());
 }
+function js() {
+  return src(path.src.js)
+  .pipe(sourcemaps.init())
+  .pipe(sourcemaps.write())
+  .pipe(dest(path.build.js)) 
+  .pipe(
+    rename({
+      extname: ".min.js",
+    })
+  )   
+  .pipe(uglify())    
+  .pipe(dest(path.build.js))
+  .pipe(browsersync.stream());
 
-function scripts() {
-    return src('app/js/app.js')
-        .pipe(webpack({
-            mode: 'production',
-            module: {
-                rules: [
-                    {
-                        test: /\.(js)$/,
-                        exclude: /(node_modules)/,
-                        loader: 'babel-loader',
-                        query: {
-                            presets: ['@babel/env'],
-                            plugins: [
-                                'babel-plugin-root-import',
-                                '@babel/plugin-proposal-class-properties',
-                                '@babel/plugin-transform-runtime',
-                            ],
-                        }
-                    }
-                ]
-            }
-        })).on('error', function handleError() {
-            this.emit('end')
-        })
-        .pipe(rename('app.min.js'))
-        .pipe(dest('app/js'))
-        .pipe(browserSync.stream())
-}
-
-function styles() {
-    return src('app/sass/main.sass')
-        .pipe(sass({outputStyle: 'compressed'}))
-        .pipe(autoprefixer({overrideBrowserslist: ['last 10 versions'], grid: true}))
-        .pipe(rename('app.min.css'))
-        .pipe(dest('app/css'))
-        .pipe(browserSync.stream())
-}
+  }
 
 function images() {
-    return src(['app/images/src/**/*'])
-        .pipe(newer('app/images/dist'))
-        .pipe(imagemin())
-        .pipe(dest('app/images/dist'))
-        .pipe(browserSync.stream())
+  return src(path.src.img)
+    .pipe(
+      imagemin({
+        progressive: true,
+        svgoPlugins: [{ removeViewBox: false }],
+        interlaced: true,
+        optimizationLevel: 3,
+      })
+    )
+    .pipe(dest(path.build.img))
+    .pipe(browsersync.stream());
+}
+function fonts(param) {
+  src(path.src.fonts).pipe(ttf2woff()).pipe(dest(path.build.fonts));
+  return src(path.src.fonts).pipe(ttf2woff2()).pipe(dest(path.build.fonts));
+}
+function fontsStyle(params) {
+  let file_content = fs.readFileSync(source_folder + "/scss/fonts.scss");
+  if (file_content == "") {
+    fs.writeFile(source_folder + "/scss/fonts.scss", "", cb);
+    return fs.readdir(path.build.fonts, function (err, items) {
+      if (items) {
+        let c_fontname;
+        for (var i = 0; i < items.length; i++) {
+          let fontname = items[i].split(".");
+          fontname = fontname[0];
+          if (c_fontname != fontname) {
+            fs.appendFile(
+              source_folder + "/scss/fonts.scss",
+              '@include font("' +
+                fontname +
+                '", "' +
+                fontname +
+                '", "400", "normal");\r\n',
+              cb
+            );
+          }
+          c_fontname = fontname;
+        }
+      }
+    });
+  }
+}
+function cb() {}
+function watchFiles(params) {
+  gulp.watch([path.watch.html], html);
+  gulp.watch([path.watch.css], css);
+  gulp.watch([path.watch.js], js);
+  gulp.watch([path.watch.img], images);
 }
 
-function buildcopy() {
-    return src([
-        '{app/js,app/css}/*.min.*',
-        'app/images/**/*.*',
-        '!app/images/src/**/*',
-        'app/fonts/**/*'
-    ], {base: 'app/'})
-        .pipe(dest('dist'))
+function clean(params) {
+  return del(path.clean);
 }
 
-async function buildhtml() {
-    let includes = new ssi('app/', 'dist/', '/**/*.html')
-    includes.compile()
-    del('dist/parts', {force: true})
-}
+let build = gulp.series(
+  clean,
+  gulp.parallel(js, css, html, images, fonts),
+  fontsStyle
+);
+let watch = gulp.parallel(build, watchFiles, browserSync);
 
-function cleandist() {
-    return del('dist/**/*', {force: true})
-}
-
-function deploy() {
-    return src('dist/')
-        .pipe(rsync({
-            root: 'dist/',
-            hostname: 'username@yousite.com',
-            destination: 'yousite/public_html/',
-            include: [/* '*.htaccess' */], // Included files to deploy,
-            exclude: ['**/Thumbs.db', '**/*.DS_Store'],
-            recursive: true,
-            archive: true,
-            silent: false,
-            compress: true
-        }))
-}
-
-function startwatch() {
-    watch('app/sass/**/*', {usePolling: true}, styles)
-    watch(['app/js/**/*.js', '!app/js/**/*.min.js'], {usePolling: true}, scripts)
-    watch('app/images/src/**/*.{jpg,jpeg,png,webp,svg,gif}', {usePolling: true}, images)
-    watch(`app/**/*.{${fileswatch}}`, {usePolling: true}).on('change', browserSync.reload)
-}
-
-exports.scripts = scripts
-exports.styles = styles
-exports.images = images
-exports.deploy = deploy
-exports.assets = series(scripts, styles, images)
-exports.build = series(cleandist, scripts, styles, images, buildcopy, buildhtml)
-exports.default = series(scripts, styles, images, parallel(browsersync, startwatch))
+exports.fontsStyle = fontsStyle;
+exports.fonts = fonts;
+exports.images = images;
+exports.js = js;
+exports.css = css;
+exports.html = html;
+exports.build = build;
+exports.watch = watch;
+exports.default = watch;

@@ -27,6 +27,6 @@ button.addEventListener('click', function() {
     `)
     console.log(modal)
     let section = document.getElementById('section')
-    section.append(modal)
+    section.appendChild(modal)
 })
 
