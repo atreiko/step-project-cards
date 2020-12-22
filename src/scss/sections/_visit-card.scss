@@ -6,6 +6,8 @@
 
 .visit {
     box-shadow: 3px 3px 3px 0 tomato;
+    display: flex;
+    flex-wrap: wrap;
 
     &-title {
         font-size: 3rem;
