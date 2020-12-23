@@ -1,3 +1,9 @@
-import { a } from './test.js'
+import Modal from './_modal.js'
 
-console.log(a);
+const headerBtn = document.getElementById('headerBtn')
+
+headerBtn.addEventListener('click', (e) => {
+    
+    new Modal('modal','SignIn', '<input>').render()
+    
+})
