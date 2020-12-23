@@ -2,8 +2,15 @@
 @import '../../node_modules/reset-css/reset.css';
 @import 'sections/header';
 @import 'sections/main-block';
+@import 'sections/modal';
 @import 'sections/visit-card';
+
 
 body {
     font-family: 'Arial', sans-serif;
+}
+
+.wrapper {
+    width: 1370px;
+    margin: 0 auto;
 }

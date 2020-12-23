@@ -1,7 +1,5 @@
-const { create } = require("browser-sync");
 
 class Component {
-    constructor()
 
     createElement(tag, attr, content = '') {
         const element = document.createElement(tag)
